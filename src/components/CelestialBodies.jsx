@@ -89,7 +89,8 @@ function Moon({ position, phase, illumination, visible }) {
   const glowRef = useRef()
 
   // Load moon texture (Solar System Scope 2K texture)
-  const moonTexture = useTexture('/textures/moon.jpg')
+  // Use import.meta.env.BASE_URL for correct path in both dev and production
+  const moonTexture = useTexture(`${import.meta.env.BASE_URL}textures/moon.jpg`)
 
   // Moon material with texture and phase shadow
   const moonMaterial = useMemo(() => {
