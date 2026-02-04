@@ -2,13 +2,12 @@ import { useEffect, useState } from 'react'
 import useSelectedBuilding from '../hooks/useSelectedBuilding'
 import useCamera from '../hooks/useCamera'
 import buildingsData from '../data/buildings.json'
-import streetsData from '../data/streets.json'
 
 function Controls() {
   const selectedId = useSelectedBuilding((state) => state.selectedId)
   const deselect = useSelectedBuilding((state) => state.deselect)
   const viewMode = useCamera((state) => state.viewMode)
-  const setViewMode = useCamera((state) => state.setViewMode)
+  const exitToPlan = useCamera((state) => state.exitToPlan)
   const [buildingInfo, setBuildingInfo] = useState(null)
 
   useEffect(() => {
@@ -22,63 +21,28 @@ function Controls() {
     }
   }, [selectedId])
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === '1') setViewMode('fly')
-      if (e.key === '2') setViewMode('plan')
-      if (e.key === '3') setViewMode('street')
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [setViewMode])
-
-  const buildingCount = buildingsData.buildings.length
-  const streetCount = streetsData.streets.length
-
-  const viewModes = [
-    { id: 'fly', label: 'Fly', key: '1' },
-    { id: 'plan', label: 'Plan', key: '2' },
-    { id: 'street', label: 'Street', key: '3' },
-  ]
-
   const instructions = {
-    fly: 'Drag to orbit · Scroll to zoom · Right-drag to pan',
-    plan: 'Drag to pan · Scroll to zoom',
-    street: 'Drag to look · Scroll to move · Right-drag to walk',
+    plan: 'Drag to orbit · Scroll to zoom · Double-click building for street view',
+    street: 'Drag to look around · Scroll to move · ESC to exit',
   }
 
   return (
     <>
-      {/* Title overlay */}
-      <div className="absolute top-4 left-4 text-white">
-        <h1 className="text-2xl font-bold tracking-wide">Belle Epoque</h1>
-        <p className="text-sm text-gray-400">Downtown Belleville, IL</p>
-        <p className="text-xs text-gray-500 mt-1">
-          {buildingCount.toLocaleString()} buildings · {streetCount} streets
-        </p>
-      </div>
-
-      {/* View mode switcher */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1 bg-gray-900/90 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
-        {viewModes.map((mode) => (
+      {/* Street view indicator and exit button */}
+      {viewMode === 'street' && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-gray-900/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gray-700">
+          <span className="text-white text-sm font-medium">Street View</span>
           <button
-            key={mode.id}
-            onClick={() => setViewMode(mode.id)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-              viewMode === mode.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800'
-            }`}
+            onClick={exitToPlan}
+            className="px-3 py-1.5 rounded-md text-sm font-medium bg-white text-gray-900 hover:bg-gray-200 transition-colors"
           >
-            {mode.label}
-            <span className="ml-1.5 text-xs opacity-40">{mode.key}</span>
+            Exit
           </button>
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* Instructions */}
-      <div className="absolute bottom-4 left-4 text-gray-500 text-sm">
+      <div className="absolute bottom-4 right-4 text-gray-500 text-sm text-right">
         <p>{instructions[viewMode]}</p>
       </div>
 

@@ -9,6 +9,7 @@ import aoData from '../data/building-ao.json'
 import useSelectedBuilding from '../hooks/useSelectedBuilding'
 import useBusinessState from '../hooks/useBusinessState'
 import useTimeOfDay from '../hooks/useTimeOfDay'
+import useCamera from '../hooks/useCamera'
 
 // ============ ROAD GEOMETRY BUILDER ============
 function buildRoadGeometry(points, width, yOffset) {
@@ -394,6 +395,7 @@ function Building({ building }) {
   const prevStateRef = useRef({ isOpen: null, shouldGlow: null })
   const { selectedId, hoveredId, select, setHovered, clearHovered } = useSelectedBuilding()
   const getLightingPhase = useTimeOfDay((state) => state.getLightingPhase)
+  const enterStreetView = useCamera((state) => state.enterStreetView)
 
   const isSelected = selectedId === building.id
   const isHovered = hoveredId === building.id
@@ -503,6 +505,7 @@ function Building({ building }) {
         onPointerOver={(e) => { e.stopPropagation(); setHovered(building.id); document.body.style.cursor = 'pointer' }}
         onPointerOut={() => { clearHovered(); document.body.style.cursor = 'auto' }}
         onClick={(e) => { e.stopPropagation(); select(building.id) }}
+        onDoubleClick={(e) => { e.stopPropagation(); enterStreetView(building.position) }}
       />
       <NeonBand building={building} />
     </group>

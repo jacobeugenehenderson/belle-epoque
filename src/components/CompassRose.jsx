@@ -1,9 +1,21 @@
+import useCamera from '../hooks/useCamera'
+
 function CompassRose() {
+  const azimuth = useCamera((state) => state.azimuth)
+
+  // Convert azimuth to degrees for CSS rotation
+  // Azimuth is in radians, and we need to rotate the compass to match camera heading
+  const rotationDeg = (azimuth * 180) / Math.PI
+
   return (
     <div className="absolute top-24 right-4 select-none">
       <div className="relative w-16 h-16">
-        {/* Outer ring */}
-        <svg viewBox="0 0 100 100" className="w-full h-full">
+        {/* Rotating compass */}
+        <svg
+          viewBox="0 0 100 100"
+          className="w-full h-full transition-transform duration-100"
+          style={{ transform: `rotate(${rotationDeg}deg)` }}
+        >
           {/* Background circle */}
           <circle
             cx="50"
@@ -65,7 +77,7 @@ function CompassRose() {
           {/* Center dot */}
           <circle cx="50" cy="50" r="4" fill="#444" stroke="#666" strokeWidth="1" />
 
-          {/* Cardinal labels */}
+          {/* Cardinal labels - these rotate with compass */}
           <text x="50" y="7" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="bold" fontFamily="system-ui">N</text>
           <text x="50" y="99" textAnchor="middle" fill="#888888" fontSize="7" fontFamily="system-ui">S</text>
           <text x="97" y="53" textAnchor="middle" fill="#888888" fontSize="7" fontFamily="system-ui">E</text>
