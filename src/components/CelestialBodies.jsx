@@ -1,5 +1,6 @@
 import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { Stars } from '@react-three/drei'
 import * as THREE from 'three'
 import SunCalc from 'suncalc'
 import useTimeOfDay from '../hooks/useTimeOfDay'
@@ -79,48 +80,222 @@ function SecondaryOrb({ position, color, intensity }) {
   )
 }
 
-// Sky dome with gradient
-function SkyDome({ topColor, bottomColor }) {
-  const materialRef = useRef()
+// Moon with phase-accurate rendering
+function Moon({ position, phase, illumination, visible }) {
+  const moonRef = useRef()
 
-  // Update uniforms every frame to ensure they're current
+  // Phase goes from 0 to 1:
+  // 0 = new moon, 0.25 = first quarter, 0.5 = full moon, 0.75 = last quarter
+  const moonMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        phase: { value: phase },
+        illumination: { value: illumination },
+        baseColor: { value: new THREE.Color('#f5f3e8') },
+        shadowColor: { value: new THREE.Color('#1a1a2a') },
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec2 vUv;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float phase;
+        uniform float illumination;
+        uniform vec3 baseColor;
+        uniform vec3 shadowColor;
+        varying vec3 vNormal;
+        varying vec2 vUv;
+
+        void main() {
+          // Calculate terminator position based on phase
+          // Phase 0 = new (shadow on right), 0.5 = full, 1.0 = new again
+          float angle = phase * 2.0 * 3.14159;
+
+          // Light direction rotates around the moon
+          vec3 lightDir = normalize(vec3(sin(angle), 0.0, cos(angle)));
+
+          // Basic diffuse lighting
+          float diff = dot(vNormal, lightDir);
+
+          // Soften the terminator
+          diff = smoothstep(-0.1, 0.2, diff);
+
+          // Add some surface variation (simple procedural craters)
+          float crater = sin(vUv.x * 30.0) * sin(vUv.y * 30.0) * 0.05;
+          crater += sin(vUv.x * 15.0 + 2.0) * sin(vUv.y * 12.0 + 1.0) * 0.08;
+
+          vec3 surfaceColor = baseColor * (0.9 + crater);
+          vec3 color = mix(shadowColor, surfaceColor, diff);
+
+          // Slight limb darkening
+          float rim = 1.0 - pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 0.5);
+          color *= 0.85 + rim * 0.15;
+
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+    })
+  }, [])
+
+  // Update phase uniform
   useFrame(() => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.topColor.value.set(topColor)
-      materialRef.current.uniforms.bottomColor.value.set(bottomColor)
+    if (moonRef.current) {
+      moonRef.current.material.uniforms.phase.value = phase
+      moonRef.current.material.uniforms.illumination.value = illumination
     }
   })
 
+  if (!visible) return null
+
   return (
-    <mesh>
-      <sphereGeometry args={[3000, 64, 64]} />
-      <shaderMaterial
-        ref={materialRef}
-        uniforms={{
-          topColor: { value: new THREE.Color(topColor) },
-          bottomColor: { value: new THREE.Color(bottomColor) },
-        }}
-        vertexShader={`
-          varying vec3 vWorldPosition;
-          void main() {
-            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-            vWorldPosition = worldPosition.xyz;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `}
-        fragmentShader={`
-          uniform vec3 topColor;
-          uniform vec3 bottomColor;
-          varying vec3 vWorldPosition;
-          void main() {
-            float h = normalize(vWorldPosition).y;
-            float t = smoothstep(-0.1, 0.5, h);
-            gl_FragColor = vec4(mix(bottomColor, topColor, t), 1.0);
-          }
-        `}
-        side={THREE.BackSide}
+    <group position={position.toArray()}>
+      {/* Moon surface */}
+      <mesh ref={moonRef} material={moonMaterial}>
+        <sphereGeometry args={[15, 32, 32]} />
+      </mesh>
+      {/* Subtle glow */}
+      <mesh scale={1.3}>
+        <sphereGeometry args={[15, 32, 32]} />
+        <meshBasicMaterial
+          color="#aabbcc"
+          transparent
+          opacity={0.15 * illumination}
+        />
+      </mesh>
+    </group>
+  )
+}
+
+// Gradient sky dome with smooth day/night transitions
+function GradientSky({ sunAltitude }) {
+  const materialRef = useRef()
+  const starsRef = useRef()
+
+  // Calculate sky colors based on sun altitude
+  const colors = useMemo(() => {
+    // Normalize sun altitude to useful ranges
+    const dayAmount = Math.max(0, Math.min(1, (sunAltitude + 0.1) / 0.5)) // 0 at night, 1 at full day
+    const twilightAmount = Math.max(0, Math.min(1, (sunAltitude + 0.15) / 0.25)) // twilight transition
+
+    // Night colors
+    const nightZenith = new THREE.Color('#0a0a15')
+    const nightHorizon = new THREE.Color('#1a1a2a')
+
+    // Twilight colors
+    const twilightZenith = new THREE.Color('#1a2040')
+    const twilightHorizon = new THREE.Color('#4a3050')
+
+    // Day colors - darker blue at horizon, brighter at zenith (summer day feel)
+    const dayZenith = new THREE.Color('#4a90e0')
+    const dayHorizon = new THREE.Color('#87ceeb').lerp(new THREE.Color('#c0ddf0'), 0.3)
+
+    // Blend based on time of day
+    let zenith, horizon
+
+    if (sunAltitude < -0.1) {
+      // Full night
+      zenith = nightZenith
+      horizon = nightHorizon
+    } else if (sunAltitude < 0.05) {
+      // Twilight
+      const t = (sunAltitude + 0.1) / 0.15
+      zenith = nightZenith.clone().lerp(twilightZenith, t)
+      horizon = nightHorizon.clone().lerp(twilightHorizon, t)
+    } else if (sunAltitude < 0.3) {
+      // Golden hour to day transition
+      const t = (sunAltitude - 0.05) / 0.25
+      zenith = twilightZenith.clone().lerp(dayZenith, t)
+      horizon = twilightHorizon.clone().lerp(dayHorizon, t)
+    } else {
+      // Full day
+      zenith = dayZenith
+      horizon = dayHorizon
+    }
+
+    return { zenith, horizon }
+  }, [sunAltitude])
+
+  // Stars fade based on sun altitude
+  const starOpacity = Math.max(0, Math.min(1, (-sunAltitude - 0.02) / 0.12))
+
+  useFrame(() => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.zenithColor.value.copy(colors.zenith)
+      materialRef.current.uniforms.horizonColor.value.copy(colors.horizon)
+    }
+    if (starsRef.current) {
+      starsRef.current.material.opacity = starOpacity
+    }
+  })
+
+  const skyMaterial = useMemo(() => new THREE.ShaderMaterial({
+    uniforms: {
+      zenithColor: { value: new THREE.Color('#4a90e0') },
+      horizonColor: { value: new THREE.Color('#87ceeb') },
+    },
+    vertexShader: `
+      varying vec3 vWorldPosition;
+      void main() {
+        vec4 worldPos = modelMatrix * vec4(position, 1.0);
+        vWorldPosition = worldPos.xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 zenithColor;
+      uniform vec3 horizonColor;
+      varying vec3 vWorldPosition;
+
+      void main() {
+        vec3 dir = normalize(vWorldPosition);
+
+        // Height above horizon (0 at horizon, 1 at zenith)
+        float h = dir.y;
+
+        // Smooth gradient from horizon to zenith
+        // Using a curve that spends more time near horizon colors
+        float t = pow(max(0.0, h), 0.6);
+
+        // Below horizon, fade to darker
+        float belowHorizon = smoothstep(0.0, -0.15, h);
+        vec3 groundColor = horizonColor * 0.3;
+
+        // Mix horizon → zenith for sky, darken below horizon
+        vec3 skyColor = mix(horizonColor, zenithColor, t);
+        vec3 finalColor = mix(skyColor, groundColor, belowHorizon);
+
+        gl_FragColor = vec4(finalColor, 1.0);
+      }
+    `,
+    side: THREE.BackSide,
+    depthWrite: false,
+  }), [])
+
+  return (
+    <>
+      {/* Sky dome */}
+      <mesh>
+        <sphereGeometry args={[3500, 64, 64]} />
+        <primitive object={skyMaterial} ref={materialRef} />
+      </mesh>
+
+      {/* Stars - render inside sky dome */}
+      <Stars
+        ref={starsRef}
+        radius={2000}
+        depth={50}
+        count={6000}
+        factor={5}
+        saturation={0.1}
+        fade
+        speed={0}
       />
-    </mesh>
+    </>
   )
 }
 
@@ -155,14 +330,22 @@ function CelestialBodies() {
     let sky = {}
     let ambient = {}
 
+    // Moon data for dedicated Moon component
+    const moon = {
+      position: moonPosition,
+      phase: moonIllum.phase,
+      illumination: moonIllum.fraction,
+      visible: moonAlt > -0.05,
+    }
+
     if (isNight) {
-      // Night: Moon is primary, blue tones
+      // Night: Moon is primary light source, blue tones
       const moonBrightness = 0.3 + moonIllum.fraction * 0.4
       primary = {
         position: moonAlt > 0 ? moonPosition : new THREE.Vector3(200, 150, 200),
         color: '#9ab8e0',
         intensity: moonBrightness,
-        showOrb: moonAlt > 0,
+        showOrb: false, // Moon component handles the orb now
         orbColor: '#e8e8f0',
         orbSize: 12,
       }
@@ -234,13 +417,16 @@ function CelestialBodies() {
       ambient = { color: '#eef4ff', intensity: 0.7 }
     }
 
-    return { primary, secondary, sky, ambient, isNight }
+    return { primary, secondary, sky, ambient, isNight, moon, sunPosition, sunAlt }
   }, [currentTime])
 
   return (
     <>
-      {/* Sky gradient dome */}
-      <SkyDome topColor={lighting.sky.top} bottomColor={lighting.sky.bottom} />
+      {/* Gradient sky dome with stars */}
+      <GradientSky sunAltitude={lighting.sunAlt} />
+
+      {/* Moon with phase-accurate rendering */}
+      <Moon {...lighting.moon} />
 
       {/* Base ambient - guarantees minimum visibility */}
       <ambientLight color="#ffffff" intensity={0.4} />
@@ -258,7 +444,7 @@ function CelestialBodies() {
         intensity={0.25}
       />
 
-      {/* Primary orb - sun or moon */}
+      {/* Primary orb - sun or moon light */}
       <PrimaryOrb {...lighting.primary} />
 
       {/* Secondary fill orb - opposite side */}
