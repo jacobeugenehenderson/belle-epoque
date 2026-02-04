@@ -1,13 +1,23 @@
 #!/bin/bash
-# Build and deploy to jacobhenderson.studio/belle-epoque
+# Build and deploy belle-epoque to GitHub Pages
 
 set -e
 
 echo "Building..."
 npm run build
 
-echo "Copying to jacobhenderson-studio..."
-rm -rf /Volumes/Today/jacobhenderson-studio/belle-epoque
-cp -r dist /Volumes/Today/jacobhenderson-studio/belle-epoque
+echo "Deploying to gh-pages..."
+cd dist
 
-echo "Done! Now cd to jacobhenderson-studio to commit and push."
+# Initialize git in dist if needed
+if [ ! -d .git ]; then
+  git init
+  git remote add origin git@github.com:jacobeugenehenderson/belle-epoque.git
+fi
+
+git add -A
+git commit -m "Deploy $(date '+%Y-%m-%d %H:%M:%S')"
+git push -f origin HEAD:gh-pages
+
+cd ..
+echo "Done! Site will be live at https://jacobeugenehenderson.github.io/belle-epoque/"
