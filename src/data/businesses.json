@@ -1,0 +1,105 @@
+{
+  "businesses": [
+    {
+      "id": "courthouse",
+      "name": "St. Clair County Courthouse",
+      "description": "The county courthouse for St. Clair County, built in 1976. This modernist 5-story building replaced the historic 1861 courthouse that was demolished in 1972.",
+      "category": "Government",
+      "address": "10 Public Square",
+      "phone": null,
+      "website": null,
+      "featured": true
+    },
+    {
+      "id": "lofts-square",
+      "name": "Lofts on the Square",
+      "description": "Historic 1931 Art Deco hotel converted to senior apartments. Originally Hotel Belleville, this 6-story landmark anchors the Public Square and was added to the National Register of Historic Places in 2018.",
+      "category": "Residential",
+      "address": "16 S. Illinois St.",
+      "phone": null,
+      "website": null,
+      "featured": true
+    },
+    {
+      "id": "lincoln-theatre",
+      "name": "Lincoln Theatre",
+      "description": "Historic 1921 theater featuring first-run Hollywood films, live concerts, and performances. Stars like Ginger Rogers and the Marx Brothers have graced this stage. Home of the Belleville Philharmonic.",
+      "category": "Entertainment",
+      "address": "103 E. Main St.",
+      "phone": "618-233-0123",
+      "website": "lincolntheatre-belleville.com",
+      "hours": "12:00 PM - 10:00 PM daily",
+      "featured": true
+    },
+    {
+      "id": "abes-popcorn",
+      "name": "Abe's Gourmet Popcorn",
+      "description": "Award-winning gourmet popcorn shop connected to the Lincoln Theatre. Famous for creative flavors and locally beloved snacks.",
+      "category": "Food & Snacks",
+      "address": "101 E. Main St.",
+      "phone": null,
+      "website": null,
+      "featured": false
+    },
+    {
+      "id": "candy-bar",
+      "name": "The Candy Bar & The Tea Spot",
+      "description": "Sweet shop offering candies, chocolates, and specialty teas in downtown Belleville.",
+      "category": "Food & Snacks",
+      "address": "28 E. Main St.",
+      "phone": null,
+      "website": null,
+      "featured": false
+    },
+    {
+      "id": "keils-clock",
+      "name": "Keil's Clock Shop",
+      "description": "Specialty clock shop offering antique timepieces, repairs, and clock sales. A downtown Belleville institution.",
+      "category": "Retail",
+      "address": "109 E. Main St.",
+      "phone": null,
+      "website": null,
+      "featured": false
+    },
+    {
+      "id": "bennies-pizza",
+      "name": "Bennie's Pizza Pub",
+      "description": "Beloved local pizzeria and pub serving classic pies and drinks in the heart of downtown.",
+      "category": "Restaurant",
+      "address": "113 E. Main St.",
+      "phone": null,
+      "website": null,
+      "featured": false
+    },
+    {
+      "id": "cosmic-comics",
+      "name": "Cosmic Comics, Collectibles & Games",
+      "description": "Comic book store featuring comics, collectibles, trading cards, and tabletop games.",
+      "category": "Retail",
+      "address": "132 W. Main St.",
+      "phone": null,
+      "website": null,
+      "featured": false
+    },
+    {
+      "id": "eckert-florist",
+      "name": "Eckert Florist",
+      "description": "Local florist offering floral arrangements for all occasions.",
+      "category": "Retail",
+      "address": "201 W. Main St.",
+      "phone": null,
+      "website": null,
+      "featured": false
+    },
+    {
+      "id": "big-daddys",
+      "name": "Big Daddy's 618",
+      "description": "Popular downtown restaurant and bar in the heart of Belleville's Main Street district.",
+      "category": "Restaurant",
+      "address": "313 E. Main St.",
+      "phone": null,
+      "website": null,
+      "featured": false
+    }
+  ]
+}
