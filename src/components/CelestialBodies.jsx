@@ -80,73 +80,125 @@ function SecondaryOrb({ position, color, intensity }) {
   )
 }
 
-// Moon with phase-accurate rendering
+// Moon with phase-accurate rendering using billboard approach
 function Moon({ position, phase, illumination, visible }) {
   const moonRef = useRef()
+  const glowRef = useRef()
 
-  // Phase goes from 0 to 1:
-  // 0 = new moon, 0.25 = first quarter, 0.5 = full moon, 0.75 = last quarter
+  // Billboard shader that always faces camera with correct phase
   const moonMaterial = useMemo(() => {
     return new THREE.ShaderMaterial({
       uniforms: {
         phase: { value: phase },
-        illumination: { value: illumination },
         baseColor: { value: new THREE.Color('#f5f3e8') },
-        shadowColor: { value: new THREE.Color('#1a1a2a') },
+        shadowColor: { value: new THREE.Color('#0a0a12') },
       },
       vertexShader: `
-        varying vec3 vNormal;
         varying vec2 vUv;
         void main() {
-          vNormal = normalize(normalMatrix * normal);
           vUv = uv;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
       fragmentShader: `
         uniform float phase;
-        uniform float illumination;
         uniform vec3 baseColor;
         uniform vec3 shadowColor;
-        varying vec3 vNormal;
         varying vec2 vUv;
 
         void main() {
-          // Calculate terminator position based on phase
-          // Phase 0 = new (shadow on right), 0.5 = full, 1.0 = new again
+          // Center UV at origin, scale to -1 to 1
+          vec2 uv = (vUv - 0.5) * 2.0;
+
+          // Distance from center for circular mask
+          float dist = length(uv);
+
+          // Discard pixels outside the moon circle
+          if (dist > 1.0) discard;
+
+          // Calculate the "depth" on the sphere surface (z coordinate)
+          float z = sqrt(1.0 - dist * dist);
+
+          // Phase angle: 0 = new moon, 0.5 = full moon, 1.0 = new moon
+          // Convert to angle where light comes from
           float angle = phase * 2.0 * 3.14159;
 
-          // Light direction rotates around the moon
-          vec3 lightDir = normalize(vec3(sin(angle), 0.0, cos(angle)));
+          // Light direction in moon's local XZ plane
+          float lightX = -cos(angle);
 
-          // Basic diffuse lighting
-          float diff = dot(vNormal, lightDir);
+          // Dot product with surface normal (uv.x is roughly the x-normal component)
+          // For a sphere viewed head-on, normal.x ≈ uv.x, normal.z ≈ z
+          float lightDot = uv.x * lightX + z * sin(angle);
 
-          // Soften the terminator
-          diff = smoothstep(-0.1, 0.2, diff);
+          // Soft terminator
+          float lit = smoothstep(-0.05, 0.1, lightDot);
 
-          // Add some surface variation (simple procedural craters)
-          float crater = sin(vUv.x * 30.0) * sin(vUv.y * 30.0) * 0.05;
-          crater += sin(vUv.x * 15.0 + 2.0) * sin(vUv.y * 12.0 + 1.0) * 0.08;
+          // Add subtle surface variation
+          float noise = sin(uv.x * 25.0 + uv.y * 18.0) * 0.03 +
+                        sin(uv.x * 12.0 - uv.y * 22.0 + 1.5) * 0.04;
 
-          vec3 surfaceColor = baseColor * (0.9 + crater);
-          vec3 color = mix(shadowColor, surfaceColor, diff);
+          // Limb darkening - darken edges of the moon
+          float limb = pow(z, 0.3);
 
-          // Slight limb darkening
-          float rim = 1.0 - pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 0.5);
-          color *= 0.85 + rim * 0.15;
+          vec3 surfaceColor = baseColor * (0.95 + noise) * limb;
+          vec3 color = mix(shadowColor, surfaceColor, lit);
 
-          gl_FragColor = vec4(color, 1.0);
+          // Soft edge antialiasing
+          float alpha = smoothstep(1.0, 0.95, dist);
+
+          gl_FragColor = vec4(color, alpha);
         }
       `,
+      transparent: true,
+      depthWrite: false,
     })
   }, [])
 
-  // Update phase uniform
-  useFrame(() => {
+  const glowMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        glowColor: { value: new THREE.Color('#aaccee') },
+        intensity: { value: illumination },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 glowColor;
+        uniform float intensity;
+        varying vec2 vUv;
+
+        void main() {
+          vec2 uv = (vUv - 0.5) * 2.0;
+          float dist = length(uv);
+
+          // Glow that fades from edge of moon outward
+          float glow = smoothstep(1.4, 0.8, dist) * smoothstep(0.7, 1.0, dist);
+          glow *= intensity * 0.4;
+
+          gl_FragColor = vec4(glowColor, glow);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+  }, [])
+
+  // Update uniforms
+  useFrame(({ camera }) => {
     if (moonRef.current) {
+      // Billboard: make moon always face camera
+      moonRef.current.quaternion.copy(camera.quaternion)
       moonRef.current.material.uniforms.phase.value = phase
-      moonRef.current.material.uniforms.illumination.value = illumination
+    }
+    if (glowRef.current) {
+      glowRef.current.quaternion.copy(camera.quaternion)
+      glowRef.current.material.uniforms.intensity.value = illumination
     }
   })
 
@@ -154,18 +206,13 @@ function Moon({ position, phase, illumination, visible }) {
 
   return (
     <group position={position.toArray()}>
-      {/* Moon surface */}
-      <mesh ref={moonRef} material={moonMaterial}>
-        <sphereGeometry args={[15, 32, 32]} />
+      {/* Glow layer behind */}
+      <mesh ref={glowRef} material={glowMaterial} renderOrder={1}>
+        <planeGeometry args={[50, 50]} />
       </mesh>
-      {/* Subtle glow */}
-      <mesh scale={1.3}>
-        <sphereGeometry args={[15, 32, 32]} />
-        <meshBasicMaterial
-          color="#aabbcc"
-          transparent
-          opacity={0.15 * illumination}
-        />
+      {/* Moon surface */}
+      <mesh ref={moonRef} material={moonMaterial} renderOrder={2}>
+        <planeGeometry args={[30, 30]} />
       </mesh>
     </group>
   )
