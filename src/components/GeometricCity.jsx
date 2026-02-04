@@ -305,7 +305,7 @@ function NeonBand({ building }) {
   // Create tube geometry around the top perimeter
   const bandGeometry = useMemo(() => {
     const height = building.size[1]
-    const bandRadius = 0.35 // Thickness of neon tube
+    const bandRadius = 0.18 // Thickness of neon tube
     const footprint = building.footprint
 
     // Get the perimeter points at building top

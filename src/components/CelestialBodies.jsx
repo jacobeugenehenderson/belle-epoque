@@ -119,19 +119,27 @@ function Moon({ position, phase, illumination, visible }) {
           // Calculate the "depth" on the sphere surface (z coordinate)
           float z = sqrt(1.0 - dist * dist);
 
-          // Phase angle: 0 = new moon, 0.5 = full moon, 1.0 = new moon
-          // Convert to angle where light comes from
-          float angle = phase * 2.0 * 3.14159;
+          // SunCalc phase: 0 = new, 0.25 = first quarter, 0.5 = full, 0.75 = last quarter
+          // We need to map this to a terminator position
+          // At phase 0 (new): fully dark (sun behind moon)
+          // At phase 0.25 (first quarter): right half lit
+          // At phase 0.5 (full): fully lit (sun behind us)
+          // At phase 0.75 (last quarter): left half lit
 
-          // Light direction in moon's local XZ plane
-          float lightX = -cos(angle);
+          // Convert phase to terminator x-position
+          // Using cosine: at phase 0, terminator at x=1 (all dark)
+          // at phase 0.5, terminator at x=-1 (all lit)
+          float terminatorX = cos(phase * 2.0 * 3.14159);
 
-          // Dot product with surface normal (uv.x is roughly the x-normal component)
-          // For a sphere viewed head-on, normal.x ≈ uv.x, normal.z ≈ z
-          float lightDot = uv.x * lightX + z * sin(angle);
+          // The lit portion is where uv.x > terminatorX adjusted for sphere curvature
+          // Account for the spherical surface - the terminator curves
+          float sphereX = uv.x / max(z, 0.01);
+          float lit = smoothstep(terminatorX - 0.15, terminatorX + 0.15, sphereX);
 
-          // Soft terminator
-          float lit = smoothstep(-0.05, 0.1, lightDot);
+          // At new moon (phase~0), make it very dark
+          // At full moon (phase~0.5), make it fully bright
+          float fullness = 1.0 - abs(cos(phase * 2.0 * 3.14159));
+          lit = mix(lit, 1.0, fullness * 0.3);
 
           // Add subtle surface variation
           float noise = sin(uv.x * 25.0 + uv.y * 18.0) * 0.03 +
@@ -176,9 +184,17 @@ function Moon({ position, phase, illumination, visible }) {
           vec2 uv = (vUv - 0.5) * 2.0;
           float dist = length(uv);
 
-          // Glow that fades from edge of moon outward
-          float glow = smoothstep(1.4, 0.8, dist) * smoothstep(0.7, 1.0, dist);
-          glow *= intensity * 0.4;
+          // Soft circular glow - fades to zero well before edges
+          // Moon is at ~0.3 of the plane size (30/100)
+          float innerEdge = 0.28;
+          float outerEdge = 0.7;
+
+          float glow = smoothstep(outerEdge, innerEdge, dist);
+          glow *= smoothstep(0.15, innerEdge, dist); // Fade inside moon area too
+          glow *= intensity * 0.25;
+
+          // Ensure fully transparent at edges
+          if (dist > 0.9) glow = 0.0;
 
           gl_FragColor = vec4(glowColor, glow);
         }
@@ -206,13 +222,13 @@ function Moon({ position, phase, illumination, visible }) {
 
   return (
     <group position={position.toArray()}>
-      {/* Glow layer behind */}
+      {/* Glow layer behind - large enough that edges never visible */}
       <mesh ref={glowRef} material={glowMaterial} renderOrder={1}>
-        <planeGeometry args={[50, 50]} />
+        <planeGeometry args={[120, 120]} />
       </mesh>
       {/* Moon surface */}
       <mesh ref={moonRef} material={moonMaterial} renderOrder={2}>
-        <planeGeometry args={[30, 30]} />
+        <planeGeometry args={[35, 35]} />
       </mesh>
     </group>
   )
