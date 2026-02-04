@@ -617,10 +617,37 @@ function VectorStreets() {
 
   return (
     <group>
-      {/* Base ground plane - circular to match sky dome */}
+      {/* Base ground plane - circular with fading edge */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>
         <circleGeometry args={[4000, 128]} />
-        <meshStandardMaterial color="#1a1a22" roughness={0.95} />
+        <shaderMaterial
+          transparent
+          uniforms={{
+            groundColor: { value: new THREE.Color('#1a1a22') },
+            fadeStart: { value: 0.6 },
+            fadeEnd: { value: 1.0 },
+          }}
+          vertexShader={`
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `}
+          fragmentShader={`
+            uniform vec3 groundColor;
+            uniform float fadeStart;
+            uniform float fadeEnd;
+            varying vec2 vUv;
+            void main() {
+              // Distance from center (0 at center, 1 at edge)
+              float dist = length(vUv - 0.5) * 2.0;
+              // Fade out at edges
+              float alpha = 1.0 - smoothstep(fadeStart, fadeEnd, dist);
+              gl_FragColor = vec4(groundColor, alpha);
+            }
+          `}
+        />
       </mesh>
 
       {/* Land use features */}

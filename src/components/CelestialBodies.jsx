@@ -1,6 +1,6 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, Suspense } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Stars } from '@react-three/drei'
+import { Stars, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import SunCalc from 'suncalc'
 import useTimeOfDay from '../hooks/useTimeOfDay'
@@ -9,15 +9,18 @@ import useTimeOfDay from '../hooks/useTimeOfDay'
 const LATITUDE = 38.52
 const LONGITUDE = -89.98
 
-// Orb distance from scene center
-const ORB_RADIUS = 600
+// Distances from scene center
+const SUN_RADIUS = 600      // Sun closer for shadow casting
+const SKY_RADIUS = 3400     // Moon at sky dome distance
 
 // Convert azimuth/altitude to 3D position
-function celestialToPosition(azimuth, altitude, radius) {
+function celestialToPosition(azimuth, altitude, radius, minY = null) {
   const x = radius * Math.cos(altitude) * Math.sin(azimuth)
   const y = radius * Math.sin(altitude)
   const z = radius * Math.cos(altitude) * Math.cos(azimuth)
-  return new THREE.Vector3(x, Math.max(y, 20), z) // Keep minimum height for shadows
+  // Only clamp Y if minY specified (for sun shadows)
+  const finalY = minY !== null ? Math.max(y, minY) : y
+  return new THREE.Vector3(x, finalY, z)
 }
 
 // Interpolate between colors
@@ -80,17 +83,20 @@ function SecondaryOrb({ position, color, intensity }) {
   )
 }
 
-// Moon with phase-accurate rendering using billboard approach
+// Moon with NASA texture and phase-based shadowing
 function Moon({ position, phase, illumination, visible }) {
   const moonRef = useRef()
   const glowRef = useRef()
 
-  // Billboard shader that always faces camera with correct phase
+  // Load moon texture (Solar System Scope 2K texture)
+  const moonTexture = useTexture('/textures/moon.jpg')
+
+  // Moon material with texture and phase shadow
   const moonMaterial = useMemo(() => {
     return new THREE.ShaderMaterial({
       uniforms: {
+        moonMap: { value: moonTexture },
         phase: { value: phase },
-        baseColor: { value: new THREE.Color('#f5f3e8') },
         shadowColor: { value: new THREE.Color('#0a0a12') },
       },
       vertexShader: `
@@ -101,71 +107,61 @@ function Moon({ position, phase, illumination, visible }) {
         }
       `,
       fragmentShader: `
+        uniform sampler2D moonMap;
         uniform float phase;
-        uniform vec3 baseColor;
         uniform vec3 shadowColor;
         varying vec2 vUv;
 
-        void main() {
-          // Center UV at origin, scale to -1 to 1
-          vec2 uv = (vUv - 0.5) * 2.0;
+        #define PI 3.14159265359
 
-          // Distance from center for circular mask
+        void main() {
+          vec2 uv = (vUv - 0.5) * 2.0;
           float dist = length(uv);
 
-          // Discard pixels outside the moon circle
-          if (dist > 1.0) discard;
+          // Discard outside circle
+          if (dist > 0.98) discard;
 
-          // Calculate the "depth" on the sphere surface (z coordinate)
-          float z = sqrt(1.0 - dist * dist);
+          // Convert circular coords to spherical for equirectangular sampling
+          // Calculate the z-depth on sphere surface
+          float z = sqrt(1.0 - min(dist * dist, 1.0));
 
-          // SunCalc phase: 0 = new, 0.25 = first quarter, 0.5 = full, 0.75 = last quarter
-          // We need to map this to a terminator position
-          // At phase 0 (new): fully dark (sun behind moon)
-          // At phase 0.25 (first quarter): right half lit
-          // At phase 0.5 (full): fully lit (sun behind us)
-          // At phase 0.75 (last quarter): left half lit
+          // Spherical to equirectangular UV mapping
+          // theta = longitude, phi = latitude
+          float theta = atan(uv.x, z);
+          float phi = asin(clamp(uv.y, -1.0, 1.0));
 
-          // Convert phase to terminator x-position
-          // Using cosine: at phase 0, terminator at x=1 (all dark)
-          // at phase 0.5, terminator at x=-1 (all lit)
-          float terminatorX = cos(phase * 2.0 * 3.14159);
+          // Map to texture coordinates (equirectangular: 0-1 for full sphere)
+          // We want the near side, so theta range is roughly -PI/2 to PI/2
+          vec2 texUv;
+          texUv.x = (theta / PI) * 0.5 + 0.5;  // Center on near side
+          texUv.y = (phi / PI) + 0.5;
 
-          // The lit portion is where uv.x > terminatorX adjusted for sphere curvature
-          // Account for the spherical surface - the terminator curves
-          float sphereX = uv.x / max(z, 0.01);
-          float lit = smoothstep(terminatorX - 0.15, terminatorX + 0.15, sphereX);
+          vec3 texColor = texture2D(moonMap, texUv).rgb;
 
-          // At new moon (phase~0), make it very dark
-          // At full moon (phase~0.5), make it fully bright
-          float fullness = 1.0 - abs(cos(phase * 2.0 * 3.14159));
-          lit = mix(lit, 1.0, fullness * 0.3);
+          // Phase shadow: 0 = new (dark), 0.5 = full (bright)
+          float angle = phase * 6.28318;
+          float terminator = cos(angle);
+          float lit = smoothstep(terminator - 0.12, terminator + 0.12, uv.x);
 
-          // Add subtle surface variation
-          float noise = sin(uv.x * 25.0 + uv.y * 18.0) * 0.03 +
-                        sin(uv.x * 12.0 - uv.y * 22.0 + 1.5) * 0.04;
+          // Apply shadow to texture
+          vec3 color = mix(shadowColor, texColor, lit);
 
-          // Limb darkening - darken edges of the moon
-          float limb = pow(z, 0.3);
+          // Limb darkening
+          color *= 0.85 + z * 0.15;
 
-          vec3 surfaceColor = baseColor * (0.95 + noise) * limb;
-          vec3 color = mix(shadowColor, surfaceColor, lit);
-
-          // Soft edge antialiasing
-          float alpha = smoothstep(1.0, 0.95, dist);
-
-          gl_FragColor = vec4(color, alpha);
+          gl_FragColor = vec4(color, 1.0);
         }
       `,
-      transparent: true,
+      transparent: false,
       depthWrite: false,
     })
-  }, [])
+  }, [moonTexture])
 
+  // Subtle glow material
   const glowMaterial = useMemo(() => {
     return new THREE.ShaderMaterial({
       uniforms: {
-        glowColor: { value: new THREE.Color('#aaccee') },
+        glowColor: { value: new THREE.Color('#c8d8e8') },
         intensity: { value: illumination },
       },
       vertexShader: `
@@ -184,31 +180,24 @@ function Moon({ position, phase, illumination, visible }) {
           vec2 uv = (vUv - 0.5) * 2.0;
           float dist = length(uv);
 
-          // Soft circular glow - fades to zero well before edges
-          // Moon is at ~0.3 of the plane size (30/100)
-          float innerEdge = 0.28;
-          float outerEdge = 0.7;
-
-          float glow = smoothstep(outerEdge, innerEdge, dist);
-          glow *= smoothstep(0.15, innerEdge, dist); // Fade inside moon area too
-          glow *= intensity * 0.25;
-
-          // Ensure fully transparent at edges
-          if (dist > 0.9) glow = 0.0;
+          // Soft glow around moon edge
+          float moonRadius = 0.25;
+          float glow = 1.0 - smoothstep(moonRadius, 0.45, dist);
+          glow = pow(glow, 3.0);
+          glow *= smoothstep(0.15, moonRadius, dist);
+          glow *= intensity * 0.08;
 
           gl_FragColor = vec4(glowColor, glow);
         }
       `,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
     })
   }, [])
 
-  // Update uniforms
+  // Update uniforms and billboard
   useFrame(({ camera }) => {
     if (moonRef.current) {
-      // Billboard: make moon always face camera
       moonRef.current.quaternion.copy(camera.quaternion)
       moonRef.current.material.uniforms.phase.value = phase
     }
@@ -220,15 +209,16 @@ function Moon({ position, phase, illumination, visible }) {
 
   if (!visible) return null
 
+  const moonSize = 280
+  const glowSize = moonSize * 4
+
   return (
     <group position={position.toArray()}>
-      {/* Glow layer behind - large enough that edges never visible */}
       <mesh ref={glowRef} material={glowMaterial} renderOrder={1}>
-        <planeGeometry args={[120, 120]} />
+        <planeGeometry args={[glowSize, glowSize]} />
       </mesh>
-      {/* Moon surface */}
       <mesh ref={moonRef} material={moonMaterial} renderOrder={2}>
-        <planeGeometry args={[35, 35]} />
+        <planeGeometry args={[moonSize, moonSize]} />
       </mesh>
     </group>
   )
@@ -381,11 +371,11 @@ function CelestialBodies() {
     const isGoldenHour = sunAlt >= 0.05 && sunAlt < 0.3
     const isDay = sunAlt >= 0.3
 
-    // Sun position
-    const sunPosition = celestialToPosition(sunPos.azimuth + Math.PI, sunPos.altitude, ORB_RADIUS)
+    // Sun position - keep minimum height for shadow casting
+    const sunPosition = celestialToPosition(sunPos.azimuth + Math.PI, sunPos.altitude, SUN_RADIUS, 100)
 
-    // Moon position
-    const moonPosition = celestialToPosition(moonPos.azimuth + Math.PI, moonPos.altitude, ORB_RADIUS)
+    // Moon position - at sky dome distance, follows true astronomical path
+    const moonPosition = celestialToPosition(moonPos.azimuth + Math.PI, moonPos.altitude, SKY_RADIUS)
 
     // Primary orb settings based on time
     let primary = {}
@@ -394,11 +384,12 @@ function CelestialBodies() {
     let ambient = {}
 
     // Moon data for dedicated Moon component
+    // Only visible when above horizon (altitude > 0)
     const moon = {
       position: moonPosition,
       phase: moonIllum.phase,
       illumination: moonIllum.fraction,
-      visible: moonAlt > -0.05,
+      visible: moonAlt > 0,
     }
 
     if (isNight) {
@@ -489,7 +480,9 @@ function CelestialBodies() {
       <GradientSky sunAltitude={lighting.sunAlt} />
 
       {/* Moon with phase-accurate rendering */}
-      <Moon {...lighting.moon} />
+      <Suspense fallback={null}>
+        <Moon {...lighting.moon} />
+      </Suspense>
 
       {/* Base ambient - guarantees minimum visibility */}
       <ambientLight color="#ffffff" intensity={0.4} />

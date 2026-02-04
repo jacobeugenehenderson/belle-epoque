@@ -305,7 +305,7 @@ function NeonBand({ building }) {
   // Create tube geometry around the top perimeter
   const bandGeometry = useMemo(() => {
     const height = building.size[1]
-    const bandRadius = 0.18 // Thickness of neon tube
+    const bandRadius = 0.075 // Thickness of neon tube - small and clean
     const footprint = building.footprint
 
     // Get the perimeter points at building top
@@ -463,11 +463,15 @@ function Building({ building }) {
 
       if (shouldGlow && !isOpen) {
         // Neutral gray for closed buildings at night
+        // Disable vertex colors so gray shows through uniformly
+        mat.vertexColors = false
         mat.color.copy(NEUTRAL_GRAY)
         mat.emissive.setHex(0x000000)
         mat.emissiveIntensity = 0
+        mat.needsUpdate = true
       } else {
         // Daytime OR open at night - restore normal appearance
+        mat.vertexColors = !!aoData[building.id]
         if (aoData[building.id]) {
           mat.color.setHex(0xffffff)
         } else {
@@ -475,6 +479,7 @@ function Building({ building }) {
         }
         mat.emissive.setHex(0x000000)
         mat.emissiveIntensity = 0
+        mat.needsUpdate = true
       }
     }
 
