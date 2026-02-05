@@ -8,7 +8,7 @@ function CompassRose() {
   const rotationDeg = (azimuth * 180) / Math.PI
 
   return (
-    <div className="absolute top-4 left-4 select-none">
+    <div className="absolute top-4 left-4 select-none z-50">
       <div className="relative w-16 h-16">
         {/* Rotating compass */}
         <svg

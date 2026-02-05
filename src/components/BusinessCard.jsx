@@ -218,7 +218,7 @@ function BusinessCard({ landmark, building, onClose }) {
   const verified = hasLandmarkInfo // For now, landmarks are "verified"
 
   return (
-    <div className="absolute top-4 right-4 bg-black/95 backdrop-blur-md rounded-xl w-96 text-white shadow-2xl border border-white/10 overflow-hidden max-h-[calc(100vh-2rem)] flex flex-col">
+    <div className="absolute top-4 right-4 bg-black/95 backdrop-blur-md rounded-xl w-96 text-white shadow-2xl border border-white/10 overflow-hidden max-h-[calc(100vh-2rem)] flex flex-col z-50">
       {/* Hero Photo Area */}
       <div className="relative h-40 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden flex-shrink-0">
         {photos ? (

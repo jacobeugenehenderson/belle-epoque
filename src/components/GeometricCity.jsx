@@ -537,7 +537,7 @@ function FloatingEmoji({ landmark, building }) {
 
   return (
     <group position={[building.position[0], height, building.position[2]]}>
-      <Html center>
+      <Html center zIndexRange={[1, 10]}>
         <div
           style={{
             fontSize: '48px',

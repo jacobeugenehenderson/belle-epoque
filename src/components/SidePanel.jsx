@@ -458,7 +458,7 @@ function SidePanel({ showAdmin = true }) {
 
   return (
     <div
-      className="absolute bottom-4 left-4 w-80 max-h-[calc(100vh-2rem)] flex flex-col select-none bg-black/80 backdrop-blur-md rounded-lg border border-white/10 overflow-hidden"
+      className="absolute bottom-4 left-4 w-80 max-h-[calc(100vh-2rem)] flex flex-col select-none bg-black/80 backdrop-blur-md rounded-lg border border-white/10 overflow-hidden z-50"
       style={{ fontFamily: 'ui-monospace, monospace' }}
     >
       {/* Tab bar */}

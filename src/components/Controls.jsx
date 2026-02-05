@@ -41,7 +41,7 @@ function Controls() {
     <>
       {/* Street view indicator and exit button */}
       {viewMode === 'street' && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-gray-900/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gray-700">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-gray-900/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gray-700 z-50">
           <span className="text-white text-sm font-medium">Street View</span>
           <button
             onClick={exitToPlan}
@@ -53,7 +53,7 @@ function Controls() {
       )}
 
       {/* Instructions */}
-      <div className="absolute bottom-4 right-4 text-gray-500 text-sm text-right">
+      <div className="absolute bottom-4 right-4 text-gray-500 text-sm text-right z-50">
         <p>{instructions[viewMode]}</p>
       </div>
 
