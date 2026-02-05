@@ -85,9 +85,6 @@ function Almanac({ showAdmin = false }) {
     (currentTime - new Date(currentTime.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)
   )
 
-  // Is sun up?
-  const isSunUp = currentTime > sunTimes.sunrise && currentTime < sunTimes.sunset
-
   return (
     <div className="absolute bottom-4 left-4 select-none">
       {/* Main almanac display */}

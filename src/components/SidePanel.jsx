@@ -80,23 +80,16 @@ function AlmanacTab({ showAdmin = false }) {
     (currentTime - new Date(currentTime.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)
   )
 
-  const isSunUp = currentTime > sunTimes.sunrise && currentTime < sunTimes.sunset
-
   return (
     <div className="flex flex-col h-full">
       {/* Digital clock header */}
       <div className="px-4 py-3 border-b border-white/10 bg-white/5">
-        <div className="flex items-baseline gap-3">
-          <span
-            className="text-3xl font-light text-white tracking-wider cursor-pointer hover:text-white/80 transition-colors"
-            onClick={() => setUse24Hour(!use24Hour)}
-            title="Click to toggle 12/24 hour format"
-          >
-            {timeString}
-          </span>
-          <span className="text-xs text-white/50 uppercase tracking-widest">
-            {isSunUp ? 'day' : 'night'}
-          </span>
+        <div
+          className="text-3xl font-light text-white tracking-wider cursor-pointer hover:text-white/80 transition-colors"
+          onClick={() => setUse24Hour(!use24Hour)}
+          title="Click to toggle 12/24 hour format"
+        >
+          {timeString}
         </div>
         <div className="text-xs text-white/40 mt-1 tracking-wide">
           {dateString} · Day {dayOfYear}
