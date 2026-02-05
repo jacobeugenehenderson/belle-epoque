@@ -409,6 +409,8 @@ function Building({ building }) {
 
     if (!footprint || footprint.length < 3) {
       geo = new THREE.BoxGeometry(building.size[0], building.size[1], building.size[2])
+      // Translate up so bottom sits at y=0 (BoxGeometry is centered by default)
+      geo.translate(0, building.size[1] / 2, 0)
     } else {
       try {
         const shape = new THREE.Shape()
@@ -422,6 +424,7 @@ function Building({ building }) {
         geo.rotateX(-Math.PI / 2)
       } catch (e) {
         geo = new THREE.BoxGeometry(building.size[0], building.size[1], building.size[2])
+        geo.translate(0, building.size[1] / 2, 0)
       }
     }
 
