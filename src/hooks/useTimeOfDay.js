@@ -23,11 +23,28 @@ const useTimeOfDay = create((set, get) => ({
   // Toggle pause
   togglePause: () => set((state) => ({ isPaused: !state.isPaused })),
 
-  // Jump to specific hour of today
+  // Jump to specific hour of today (supports fractional hours like 6.5 for 6:30)
   setHour: (hour) => {
     const now = new Date()
-    now.setHours(hour, 0, 0, 0)
+    const wholeHour = Math.floor(hour)
+    const minutes = Math.round((hour - wholeHour) * 60)
+    now.setHours(wholeHour, minutes, 0, 0)
     set({ currentTime: now })
+  },
+
+  // Set time as minutes since midnight (for smooth slider)
+  setMinuteOfDay: (minutes) => {
+    const now = new Date()
+    const hours = Math.floor(minutes / 60)
+    const mins = Math.round(minutes % 60)
+    now.setHours(hours, mins, 0, 0)
+    set({ currentTime: now })
+  },
+
+  // Get current time as minutes since midnight
+  getMinuteOfDay: () => {
+    const { currentTime } = get()
+    return currentTime.getHours() * 60 + currentTime.getMinutes()
   },
 
   // Advance time (call this from animation loop)

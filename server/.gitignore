@@ -1,0 +1,24 @@
+# Database files (contains local data - backup separately)
+*.db
+*.db-wal
+*.db-shm
+
+# Uploaded verification documents (should be temporary anyway)
+uploads/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# GIS data files (large, purchased)
+*.shp
+*.dbf
+*.shx
+*.prj
+parcels*.csv
+
+# Logs
+*.log

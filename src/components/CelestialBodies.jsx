@@ -119,22 +119,21 @@ function Moon({ position, phase, illumination, visible }) {
           vec2 uv = (vUv - 0.5) * 2.0;
           float dist = length(uv);
 
-          // Discard outside circle
-          if (dist > 0.98) discard;
+          // Antialiased edge - smooth falloff at the rim
+          float edgeWidth = fwidth(dist) * 1.5;
+          float alpha = 1.0 - smoothstep(0.96 - edgeWidth, 0.96 + edgeWidth, dist);
+
+          if (alpha < 0.01) discard;
 
           // Convert circular coords to spherical for equirectangular sampling
-          // Calculate the z-depth on sphere surface
           float z = sqrt(1.0 - min(dist * dist, 1.0));
 
           // Spherical to equirectangular UV mapping
-          // theta = longitude, phi = latitude
           float theta = atan(uv.x, z);
           float phi = asin(clamp(uv.y, -1.0, 1.0));
 
-          // Map to texture coordinates (equirectangular: 0-1 for full sphere)
-          // We want the near side, so theta range is roughly -PI/2 to PI/2
           vec2 texUv;
-          texUv.x = (theta / PI) * 0.5 + 0.5;  // Center on near side
+          texUv.x = (theta / PI) * 0.5 + 0.5;
           texUv.y = (phi / PI) + 0.5;
 
           vec3 texColor = texture2D(moonMap, texUv).rgb;
@@ -150,10 +149,10 @@ function Moon({ position, phase, illumination, visible }) {
           // Limb darkening
           color *= 0.85 + z * 0.15;
 
-          gl_FragColor = vec4(color, 1.0);
+          gl_FragColor = vec4(color, alpha);
         }
       `,
-      transparent: false,
+      transparent: true,
       depthWrite: false,
     })
   }, [moonTexture])
@@ -186,7 +185,7 @@ function Moon({ position, phase, illumination, visible }) {
           float glow = 1.0 - smoothstep(moonRadius, 0.45, dist);
           glow = pow(glow, 3.0);
           glow *= smoothstep(0.15, moonRadius, dist);
-          glow *= intensity * 0.08;
+          glow *= intensity * 0.01;
 
           gl_FragColor = vec4(glowColor, glow);
         }
@@ -210,8 +209,8 @@ function Moon({ position, phase, illumination, visible }) {
 
   if (!visible) return null
 
-  const moonSize = 280
-  const glowSize = moonSize * 4
+  const moonSize = 350  // Larger than natural for visual impact
+  const glowSize = moonSize * 6
 
   return (
     <group position={position.toArray()}>

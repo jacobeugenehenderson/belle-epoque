@@ -1,0 +1,452 @@
+{
+  "landmarks": [
+    {
+      "id": "bldg-2887e8e3-ad59-42af-9122-791e3a099b03",
+      "name": "Saint Clair County Courthouse",
+      "address": "10 PUBLIC SQ",
+      "category": "government",
+      "subcategory": "courts",
+      "phone": "(618) 277-6600",
+      "website": "https://www.co.st-clair.il.us",
+      "hours": {
+        "monday": { "open": "08:00", "close": "16:30" },
+        "tuesday": { "open": "08:00", "close": "16:30" },
+        "wednesday": { "open": "08:00", "close": "16:30" },
+        "thursday": { "open": "08:00", "close": "16:30" },
+        "friday": { "open": "08:00", "close": "16:30" },
+        "saturday": null,
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-a8cdaf1d-6a45-4af9-9334-153ea6a3d8f9",
+      "name": "Belleville City Hall",
+      "address": "101 S ILLINOIS ST",
+      "category": "government",
+      "subcategory": "municipal",
+      "phone": "(618) 233-6810",
+      "website": "https://www.belleville.net",
+      "hours": {
+        "monday": { "open": "08:00", "close": "17:00" },
+        "tuesday": { "open": "08:00", "close": "17:00" },
+        "wednesday": { "open": "08:00", "close": "17:00" },
+        "thursday": { "open": "08:00", "close": "17:00" },
+        "friday": { "open": "08:00", "close": "17:00" },
+        "saturday": null,
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-36074374-6df6-47e5-8d53-4991e5af5035",
+      "name": "Saint Clair County Public Health Department",
+      "address": "19 PUBLIC SQ",
+      "category": "health",
+      "subcategory": "public-health",
+      "phone": "(618) 233-7703",
+      "website": "https://health.co.st-clair.il.us",
+      "hours": {
+        "monday": { "open": "08:00", "close": "16:30" },
+        "tuesday": { "open": "08:00", "close": "16:30" },
+        "wednesday": { "open": "08:00", "close": "16:30" },
+        "thursday": { "open": "08:00", "close": "16:30" },
+        "friday": { "open": "08:00", "close": "16:30" },
+        "saturday": null,
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-11e51106-8c5b-4b05-910e-1305141eba52",
+      "name": "Belleville Post Office",
+      "address": "120 W WASHINGTON ST",
+      "category": "government",
+      "subcategory": "postal",
+      "phone": "(618) 234-2501",
+      "website": "https://www.usps.com",
+      "hours": {
+        "monday": { "open": "08:30", "close": "17:00" },
+        "tuesday": { "open": "08:30", "close": "17:00" },
+        "wednesday": { "open": "08:30", "close": "17:00" },
+        "thursday": { "open": "08:30", "close": "17:00" },
+        "friday": { "open": "08:30", "close": "17:00" },
+        "saturday": { "open": "09:00", "close": "12:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-5e9de480-bf26-4c75-9aa7-a6cd66d519ad",
+      "name": "MedStar Ambulance",
+      "address": "610 E MAIN ST",
+      "category": "health",
+      "subcategory": "emergency",
+      "phone": "(618) 234-6876",
+      "website": null,
+      "hours": {
+        "monday": { "open": "00:00", "close": "23:59" },
+        "tuesday": { "open": "00:00", "close": "23:59" },
+        "wednesday": { "open": "00:00", "close": "23:59" },
+        "thursday": { "open": "00:00", "close": "23:59" },
+        "friday": { "open": "00:00", "close": "23:59" },
+        "saturday": { "open": "00:00", "close": "23:59" },
+        "sunday": { "open": "00:00", "close": "23:59" }
+      }
+    },
+    {
+      "id": "bldg-fe780322-6919-4a34-8b79-1d5de4cf143c",
+      "name": "Children's Home & Aid",
+      "address": "120 E A ST",
+      "category": "health",
+      "subcategory": "family-services",
+      "phone": "(618) 234-2120",
+      "website": "https://www.childrenshomeandaid.org",
+      "hours": {
+        "monday": { "open": "08:30", "close": "17:00" },
+        "tuesday": { "open": "08:30", "close": "17:00" },
+        "wednesday": { "open": "08:30", "close": "17:00" },
+        "thursday": { "open": "08:30", "close": "17:00" },
+        "friday": { "open": "08:30", "close": "17:00" },
+        "saturday": null,
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-51615c0f-9a76-4ddf-b2f9-bd66b27b8306",
+      "name": "Downtown Belleville YMCA",
+      "address": "200 S ILLINOIS ST",
+      "category": "health",
+      "subcategory": "fitness",
+      "phone": "(618) 235-9516",
+      "website": "https://gwrymca.org/locations/downtown-belleville-ymca",
+      "hours": {
+        "monday": { "open": "05:00", "close": "21:00" },
+        "tuesday": { "open": "05:00", "close": "21:00" },
+        "wednesday": { "open": "05:00", "close": "21:00" },
+        "thursday": { "open": "05:00", "close": "21:00" },
+        "friday": { "open": "05:00", "close": "20:00" },
+        "saturday": { "open": "07:00", "close": "16:00" },
+        "sunday": { "open": "12:00", "close": "17:00" }
+      }
+    },
+    {
+      "id": "bldg-e9bc3886-0bf4-4d93-b55f-b47c671ae60e",
+      "name": "Lincoln Theatre",
+      "address": "103 E MAIN ST",
+      "category": "culture",
+      "subcategory": "arts",
+      "phone": "(618) 233-0018",
+      "website": "https://www.lincolntheatre-belleville.com",
+      "hours": null
+    },
+    {
+      "id": "bldg-fa12f9c1-7369-4517-b4bf-8b4b7f9b4d30",
+      "name": "Labor & Industry Museum",
+      "address": "123 N CHURCH ST",
+      "category": "culture",
+      "subcategory": "learning",
+      "phone": "(618) 222-4414",
+      "website": null,
+      "hours": {
+        "monday": null,
+        "tuesday": null,
+        "wednesday": { "open": "11:00", "close": "15:00" },
+        "thursday": { "open": "11:00", "close": "15:00" },
+        "friday": { "open": "11:00", "close": "15:00" },
+        "saturday": { "open": "11:00", "close": "15:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-6f208b77-2dde-450e-8c81-87d630fa789e",
+      "name": "Belleville Public Library",
+      "address": "121 E WASHINGTON ST",
+      "category": "culture",
+      "subcategory": "community-spaces",
+      "phone": "(618) 234-0441",
+      "website": "https://www.bellevillepubliclibrary.org",
+      "hours": {
+        "monday": { "open": "09:00", "close": "21:00" },
+        "tuesday": { "open": "09:00", "close": "21:00" },
+        "wednesday": { "open": "09:00", "close": "21:00" },
+        "thursday": { "open": "09:00", "close": "21:00" },
+        "friday": { "open": "09:00", "close": "18:00" },
+        "saturday": { "open": "09:00", "close": "17:00" },
+        "sunday": { "open": "13:00", "close": "17:00" }
+      }
+    },
+    {
+      "id": "bldg-2daaa37b-0b32-4b17-9250-72f600909dfb",
+      "name": "St. Clair County Historical Society",
+      "address": "705 E WASHINGTON ST",
+      "category": "culture",
+      "subcategory": "learning",
+      "phone": "(618) 234-0600",
+      "website": "https://stcchs.com",
+      "hours": {
+        "monday": null,
+        "tuesday": null,
+        "wednesday": { "open": "10:00", "close": "16:00" },
+        "thursday": { "open": "10:00", "close": "16:00" },
+        "friday": { "open": "10:00", "close": "16:00" },
+        "saturday": { "open": "10:00", "close": "16:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-7c6a0f72-076c-418d-b962-ba41ee29e41d",
+      "name": "Club Escapade",
+      "address": "133 W MAIN ST",
+      "category": "culture",
+      "subcategory": "food-drink",
+      "phone": null,
+      "website": null,
+      "hours": {
+        "monday": null,
+        "tuesday": null,
+        "wednesday": null,
+        "thursday": { "open": "21:00", "close": "03:00" },
+        "friday": { "open": "21:00", "close": "03:00" },
+        "saturday": { "open": "21:00", "close": "03:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-60bddacd-a4d6-4544-abe8-c1f4b2a9c09d",
+      "name": "Saint Luke Catholic Church",
+      "address": "301 N CHURCH ST",
+      "category": "culture",
+      "subcategory": "faith",
+      "phone": "(618) 234-0270",
+      "website": null,
+      "hours": null
+    },
+    {
+      "id": "bldg-e873d7bb-bbb0-4e02-8b09-e84783a4b590",
+      "name": "Saint Paul United Church of Christ",
+      "address": "115 W B ST",
+      "category": "culture",
+      "subcategory": "faith",
+      "phone": "(618) 233-3303",
+      "website": "https://www.stpaulucc.org",
+      "hours": null
+    },
+    {
+      "id": "bldg-42690e66-d006-45f2-b477-1829c7d9fbb8",
+      "name": "Saint Peter Cathedral",
+      "address": "200 W HARRISON ST",
+      "category": "culture",
+      "subcategory": "faith",
+      "phone": "(618) 234-1166",
+      "website": "https://www.stpetercathedral.net",
+      "hours": null
+    },
+    {
+      "id": "bldg-b7679938-3691-437a-8f37-0499c476bc01",
+      "name": "Union United Methodist Church",
+      "address": "721 E MAIN ST",
+      "category": "culture",
+      "subcategory": "faith",
+      "phone": "(618) 233-6375",
+      "website": "https://unionumc.com",
+      "hours": null
+    },
+    {
+      "id": "bldg-e9d8a6b2-aba8-4cbf-8630-eae4e0eb1272",
+      "name": "Keil's Clock Shop",
+      "address": "109 E MAIN ST",
+      "category": "goods",
+      "subcategory": "repair",
+      "phone": "(618) 233-7709",
+      "website": null,
+      "hours": {
+        "monday": { "open": "09:00", "close": "17:00" },
+        "tuesday": { "open": "09:00", "close": "17:00" },
+        "wednesday": { "open": "09:00", "close": "17:00" },
+        "thursday": { "open": "09:00", "close": "17:00" },
+        "friday": { "open": "09:00", "close": "17:00" },
+        "saturday": { "open": "09:00", "close": "14:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-39432b7f-941a-4423-a14b-9775590c2f74",
+      "name": "Blanquart Jewelers",
+      "address": "111 E MAIN ST",
+      "category": "goods",
+      "subcategory": "local-makers",
+      "phone": "(618) 233-0081",
+      "website": null,
+      "hours": {
+        "monday": { "open": "10:00", "close": "17:00" },
+        "tuesday": { "open": "10:00", "close": "17:00" },
+        "wednesday": { "open": "10:00", "close": "17:00" },
+        "thursday": { "open": "10:00", "close": "17:00" },
+        "friday": { "open": "10:00", "close": "17:00" },
+        "saturday": { "open": "10:00", "close": "14:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-b009a630-38a8-498c-8173-be1dc4be8327",
+      "name": "City Goods",
+      "address": "125 E MAIN ST",
+      "category": "goods",
+      "subcategory": "local-makers",
+      "phone": null,
+      "website": null,
+      "hours": {
+        "monday": null,
+        "tuesday": { "open": "11:00", "close": "17:00" },
+        "wednesday": { "open": "11:00", "close": "17:00" },
+        "thursday": { "open": "11:00", "close": "17:00" },
+        "friday": { "open": "11:00", "close": "17:00" },
+        "saturday": { "open": "10:00", "close": "16:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-9866111f-460b-4261-9cf4-eb8b8f8de527",
+      "name": "Sawdust & Glitter",
+      "address": "16 S ILLINOIS ST",
+      "category": "goods",
+      "subcategory": "local-makers",
+      "phone": null,
+      "website": null,
+      "hours": null
+    },
+    {
+      "id": "bldg-fc6bc3dd-e3a5-4ff2-b24b-a56e63729880",
+      "name": "Tisch Granite & Marble",
+      "address": "17 N 3RD ST",
+      "category": "goods",
+      "subcategory": "local-makers",
+      "phone": "(618) 233-1328",
+      "website": null,
+      "hours": {
+        "monday": { "open": "08:00", "close": "17:00" },
+        "tuesday": { "open": "08:00", "close": "17:00" },
+        "wednesday": { "open": "08:00", "close": "17:00" },
+        "thursday": { "open": "08:00", "close": "17:00" },
+        "friday": { "open": "08:00", "close": "17:00" },
+        "saturday": null,
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-eec5a859-d585-40c8-8473-60ae0ebc7d13",
+      "name": "Meyer Scout Shop",
+      "address": "335 W MAIN ST",
+      "category": "goods",
+      "subcategory": "local-makers",
+      "phone": "(618) 234-9111",
+      "website": null,
+      "hours": {
+        "monday": { "open": "10:00", "close": "18:00" },
+        "tuesday": { "open": "10:00", "close": "18:00" },
+        "wednesday": { "open": "10:00", "close": "18:00" },
+        "thursday": { "open": "10:00", "close": "18:00" },
+        "friday": { "open": "10:00", "close": "18:00" },
+        "saturday": { "open": "10:00", "close": "14:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-c529a654-9158-41ff-a52b-db88136cb315",
+      "name": "Margaritas",
+      "address": "108 E A ST",
+      "category": "culture",
+      "subcategory": "food-drink",
+      "phone": "(618) 277-4420",
+      "website": null,
+      "hours": {
+        "monday": { "open": "11:00", "close": "22:00" },
+        "tuesday": { "open": "11:00", "close": "22:00" },
+        "wednesday": { "open": "11:00", "close": "22:00" },
+        "thursday": { "open": "11:00", "close": "22:00" },
+        "friday": { "open": "11:00", "close": "23:00" },
+        "saturday": { "open": "11:00", "close": "23:00" },
+        "sunday": { "open": "11:00", "close": "21:00" }
+      }
+    },
+    {
+      "id": "bldg-cddd334b-2a53-405e-abb6-ab89065d9cb5",
+      "name": "Vintage Tea Room",
+      "address": "316 E MAIN ST",
+      "category": "culture",
+      "subcategory": "food-drink",
+      "phone": null,
+      "website": null,
+      "hours": null
+    },
+    {
+      "id": "bldg-c3c7bd6b-8c85-41c8-8b1a-ada8c62dc26c",
+      "name": "Firestone",
+      "address": "232 W MAIN ST",
+      "category": "work",
+      "subcategory": "services",
+      "phone": "(618) 234-7888",
+      "website": "https://www.firestone.com",
+      "hours": {
+        "monday": { "open": "07:00", "close": "19:00" },
+        "tuesday": { "open": "07:00", "close": "19:00" },
+        "wednesday": { "open": "07:00", "close": "19:00" },
+        "thursday": { "open": "07:00", "close": "19:00" },
+        "friday": { "open": "07:00", "close": "19:00" },
+        "saturday": { "open": "07:00", "close": "18:00" },
+        "sunday": { "open": "09:00", "close": "17:00" }
+      }
+    },
+    {
+      "id": "bldg-e361ec6d-0276-4288-9ef9-f3772a0443cd",
+      "name": "Belleville Dry Cleaner",
+      "address": "701 E MAIN ST",
+      "category": "work",
+      "subcategory": "services",
+      "phone": null,
+      "website": null,
+      "hours": {
+        "monday": { "open": "07:00", "close": "18:00" },
+        "tuesday": { "open": "07:00", "close": "18:00" },
+        "wednesday": { "open": "07:00", "close": "18:00" },
+        "thursday": { "open": "07:00", "close": "18:00" },
+        "friday": { "open": "07:00", "close": "18:00" },
+        "saturday": { "open": "08:00", "close": "14:00" },
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-151494ee-91cb-49d5-a587-8b5c0a6c6b55",
+      "name": "Edward Jones",
+      "address": "127 E MAIN ST",
+      "category": "work",
+      "subcategory": "services",
+      "phone": "(618) 234-0011",
+      "website": "https://www.edwardjones.com",
+      "hours": {
+        "monday": { "open": "09:00", "close": "17:00" },
+        "tuesday": { "open": "09:00", "close": "17:00" },
+        "wednesday": { "open": "09:00", "close": "17:00" },
+        "thursday": { "open": "09:00", "close": "17:00" },
+        "friday": { "open": "09:00", "close": "17:00" },
+        "saturday": null,
+        "sunday": null
+      }
+    },
+    {
+      "id": "bldg-e92645d0-73ab-47f2-8731-40b789bae46e",
+      "name": "Super 8",
+      "address": "600 E MAIN ST",
+      "category": "survival",
+      "subcategory": "housing",
+      "phone": "(618) 235-8808",
+      "website": "https://www.wyndhamhotels.com/super-8",
+      "hours": {
+        "monday": { "open": "00:00", "close": "23:59" },
+        "tuesday": { "open": "00:00", "close": "23:59" },
+        "wednesday": { "open": "00:00", "close": "23:59" },
+        "thursday": { "open": "00:00", "close": "23:59" },
+        "friday": { "open": "00:00", "close": "23:59" },
+        "saturday": { "open": "00:00", "close": "23:59" },
+        "sunday": { "open": "00:00", "close": "23:59" }
+      }
+    }
+  ]
+}

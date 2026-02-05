@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import useSelectedBuilding from '../hooks/useSelectedBuilding'
 import useCamera from '../hooks/useCamera'
 import buildingsData from '../data/buildings.json'
+import landmarksData from '../data/landmarks.json'
+import BusinessCard from './BusinessCard'
 
 function Controls() {
   const selectedId = useSelectedBuilding((state) => state.selectedId)
@@ -9,6 +11,13 @@ function Controls() {
   const viewMode = useCamera((state) => state.viewMode)
   const exitToPlan = useCamera((state) => state.exitToPlan)
   const [buildingInfo, setBuildingInfo] = useState(null)
+
+  // Create landmark lookup
+  const landmarkLookup = useMemo(() => {
+    const lookup = {}
+    landmarksData.landmarks.forEach(l => { lookup[l.id] = l })
+    return lookup
+  }, [])
 
   useEffect(() => {
     if (selectedId) {
@@ -20,6 +29,8 @@ function Controls() {
       setBuildingInfo(null)
     }
   }, [selectedId])
+
+  const landmark = selectedId ? landmarkLookup[selectedId] : null
 
   const instructions = {
     plan: 'Drag to orbit · Scroll to zoom · Double-click building for street view',
@@ -46,37 +57,13 @@ function Controls() {
         <p>{instructions[viewMode]}</p>
       </div>
 
-      {/* Selected building info panel */}
-      {buildingInfo && (
-        <div className="absolute top-20 right-4 bg-gray-900/95 backdrop-blur-sm rounded-lg p-4 w-64 text-white shadow-xl border border-gray-700">
-          <div className="flex justify-between items-start mb-3">
-            <h2 className="text-base font-medium text-gray-300">{buildingInfo.id}</h2>
-            <button
-              onClick={deselect}
-              className="text-gray-500 hover:text-white transition-colors text-lg leading-none"
-            >
-              ×
-            </button>
-          </div>
-
-          <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-500">Size</span>
-              <span className="text-gray-300">{buildingInfo.size[0].toFixed(0)} × {buildingInfo.size[2].toFixed(0)}m</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Height</span>
-              <span className="text-gray-300">{buildingInfo.size[1].toFixed(0)}m</span>
-            </div>
-          </div>
-
-          <div className="mt-3 pt-3 border-t border-gray-800">
-            <div
-              className="w-full h-3 rounded"
-              style={{ backgroundColor: buildingInfo.color }}
-            />
-          </div>
-        </div>
+      {/* Business card - shows for ANY selected building */}
+      {selectedId && buildingInfo && (
+        <BusinessCard
+          landmark={landmark}
+          building={buildingInfo}
+          onClose={deselect}
+        />
       )}
     </>
   )

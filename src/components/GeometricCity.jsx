@@ -1,15 +1,17 @@
 import { useRef, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Text } from '@react-three/drei'
+import { Text, Html } from '@react-three/drei'
 import * as THREE from 'three'
 import buildingsData from '../data/buildings.json'
 import streetsData from '../data/streets.json'
 import landuseData from '../data/landuse.json'
 import aoData from '../data/building-ao.json'
+import landmarksData from '../data/landmarks.json'
 import useSelectedBuilding from '../hooks/useSelectedBuilding'
 import useBusinessState from '../hooks/useBusinessState'
 import useTimeOfDay from '../hooks/useTimeOfDay'
 import useCamera from '../hooks/useCamera'
+import useLandmarkFilter, { SUBCATEGORY_EMOJI, CATEGORY_EMOJI } from '../hooks/useLandmarkFilter'
 
 // ============ ROAD GEOMETRY BUILDER ============
 function buildRoadGeometry(points, width, yOffset) {
@@ -522,6 +524,70 @@ function ClickCatcher() {
   )
 }
 
+// ============ FLOATING EMOJI MARKERS ============
+
+function FloatingEmoji({ landmark, building }) {
+  const select = useSelectedBuilding((state) => state.select)
+
+  const emoji = SUBCATEGORY_EMOJI[landmark.subcategory] || CATEGORY_EMOJI[landmark.category] || '📍'
+  const height = building.size[1] + 25 // Float high above building
+
+  return (
+    <group position={[building.position[0], height, building.position[2]]}>
+      <Html center>
+        <div
+          style={{
+            fontSize: '48px',
+            cursor: 'pointer',
+            userSelect: 'none',
+            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.9))',
+          }}
+          onClick={(e) => { e.stopPropagation(); select(landmark.id) }}
+        >
+          {emoji}
+        </div>
+      </Html>
+    </group>
+  )
+}
+
+function LandmarkMarkers() {
+  const activeTags = useLandmarkFilter((state) => state.activeTags)
+
+  // Get filtered landmarks
+  const filteredLandmarks = useMemo(() => {
+    if (activeTags.size === 0) return []
+    return landmarksData.landmarks.filter(l =>
+      activeTags.has(l.subcategory) || activeTags.has(l.category)
+    )
+  }, [activeTags])
+
+  // Build lookup for buildings
+  const buildingMap = useMemo(() => {
+    const map = {}
+    buildingsData.buildings.forEach(b => { map[b.id] = b })
+    return map
+  }, [])
+
+  if (filteredLandmarks.length === 0) return null
+
+  return (
+    <group>
+      {filteredLandmarks.map(landmark => {
+        const building = buildingMap[landmark.id]
+        if (!building) return null
+        return (
+          <FloatingEmoji
+            key={landmark.id}
+            landmark={landmark}
+            building={building}
+          />
+        )
+      })}
+    </group>
+  )
+}
+
 // ============ MAIN ============
 function GeometricCity() {
   const deselect = useSelectedBuilding((state) => state.deselect)
@@ -572,6 +638,9 @@ function GeometricCity() {
       {labeledStreets.slice(0, 30).map(s => (
         <StreetLabel key={`label-${s.id}`} street={s} />
       ))}
+
+      {/* Landmark markers - floating emojis when tags are active */}
+      <LandmarkMarkers />
     </group>
   )
 }

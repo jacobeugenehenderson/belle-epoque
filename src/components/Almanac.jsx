@@ -43,7 +43,7 @@ function formatTimeShort(date) {
 }
 
 function Almanac({ showAdmin = false }) {
-  const { currentTime, setTime, setHour } = useTimeOfDay()
+  const { currentTime, setTime, setHour, setMinuteOfDay } = useTimeOfDay()
   const [useRealTime, setUseRealTime] = useState(true)
   const { openPercentage, setOpenPercentage, randomize, openAll, closeAll } = useBusinessState()
   const [sliderValue, setSliderValue] = useState(openPercentage)
@@ -98,9 +98,6 @@ function Almanac({ showAdmin = false }) {
           <div className="flex items-baseline gap-3">
             <span className="text-3xl font-light text-white tracking-wider">
               {timeString}
-            </span>
-            <span className="text-xs text-white/50 uppercase tracking-widest">
-              {isSunUp ? 'day' : 'night'}
             </span>
           </div>
           <div className="text-xs text-white/40 mt-1 tracking-wide">
@@ -176,18 +173,18 @@ function Almanac({ showAdmin = false }) {
                 <input
                   type="range"
                   min="0"
-                  max="24"
-                  step="0.1"
-                  value={hours + minutes / 60}
-                  onChange={(e) => setHour(parseFloat(e.target.value))}
+                  max="1439"
+                  step="1"
+                  value={hours * 60 + minutes}
+                  onChange={(e) => setMinuteOfDay(parseInt(e.target.value))}
                   className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500"
                 />
                 <div className="flex justify-between text-[9px] text-white/30 mt-1">
-                  <span>00:00</span>
-                  <span>06:00</span>
-                  <span>12:00</span>
-                  <span>18:00</span>
-                  <span>24:00</span>
+                  <span>12am</span>
+                  <span>6am</span>
+                  <span>12pm</span>
+                  <span>6pm</span>
+                  <span>12am</span>
                 </div>
               </>
             )}
